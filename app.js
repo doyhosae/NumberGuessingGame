@@ -3,81 +3,75 @@
     var guesses = document.querySelector('.guesses');
     var lastResult = document.querySelector('.lastResult');
     var lowOrHi = document.querySelector('.lowOrHi');
-
     var guessSubmit = document.querySelector('.guessSubmit');
     var guessField = document.querySelector('.guessField');
-
     var guessCount = 1;
-
-    // function checkGuess() {
-    //     var userGuess = Number(guessField.value);
-    //     if (guessCount === 1) {
-    //         guesses.textContent = 'prvious guesses: ';
-    //     }
-    //     guesses.textContent += userGuess + ' ';
-
-    //     if (userGuess === rnadomNumber) {
-    //         lastResult.textContent = 'Congratulations! You got it right!';
-    //         lastResult.style.backgroundColor = 'green';
-    //         lowOrHi.textContent = '';
-    //         setGameOver();
-    //     } else if (guessesCount === 5) {
-    //         lastResult.textContent = '!!! GAME OVER!!!';
-    //         setGameOver();
-    //     } else {
-    //         //wrong!
-    //     }
-
-    //     guessCount++;
-    //     guessField.value = '';
-    //     guessField.foucs();
-    // }
-
-// guesses.innerText = `Previous guesses: ${guessField.value}`;
 
 function gameStatus(text, color, status) {
     lastResult.innerText = text;
     lastResult.style.backgroundColor = color;
+
+    if(status === "high"){
+        lowOrHi.textContent = "Last guess was too high!";
+    } else if(status === "low"){
+        lowOrHi.textContent = "Last guess was too low!";
+    }
 }
 
-function restartBtn() {
+function checkGuess(){
+    var userGuess = Number(guessField.value);
+    if (guessCount === 1){
+        guesses.textCotent = `Previous guesses: ${guessField.value}`;
+    }
+
+    guesses.textContent += userGuess + ' ';
+
+    if (guessCount === 5) {
+        gameStatus("GAME OVER!!!", "red");
+        setGameOver();
+    }
+
+    if (userGuess === randomNumber) {
+        gameStatus("Congratulations! You got it right!", "green");
+        setGameOver();
+
+    } else if (userGuess > randomNumber) {
+        gameStatus("Wrong!", "red", "high");
+
+    } else if (userGuess < randomNumber) {
+        gameStatus("Wrong!", "red", "low");
+    }
+    guessCount++;
+    guessField.focus();
+}
+
+guessSubmit.addEventListener('click', checkGuess);
+
+function setGameOver() {
     var resetBtn = document.createElement('button');
     resetBtn.innerText = "Start new game";
     resetBtn.setAttribute("class", "resetBtn")
-    guesses.parentNode.appendChild(resetBtn);
+    // guesses.parentNode.appendChild(resetBtn);
+    document.body.appendChild(resetBtn);
+
+    guessSubmit.disabled = true;
+    guessField.disabled = true;
+
+    //이게 왜 실행 되는 걸까...?
+    resetBtn.addEventListener('click', resetGame);
+
 }
 
-guessSubmit.addEventListener('click', () => {
-
-    if (guessCount > 5) {
-        gameStatus("GAME OVER!!!", "red");
-        restartBtn();
-        guessSubmit.disabled = true;
-    }
-
-    if (Number(guessField.value) === randomNumber) {
-        gameStatus("Congratulations! You got it right!", "green");
-        restartBtn();
-        guessSubmit.disabled = true;
-
-    } else if (Number(guessField.value) > randomNumber) {
-        guesses.append(`${guessField.value} `);
-        gameStatus("Wrong!", "red");
-        lowOrHi.innerText = "Last guess was too high!";
-        guessCount++;
-
-    } else if (Number(guessField.value) < randomNumber) {
-        guesses.append(`${guessField.value} `);
-        gameStatus("Wrong!", "red");
-        lowOrHi.innerText = "Last guess was too low!";
-        guessCount++;
-    }
-});
-
 function resetGame(){
+    var resultParas = document.querySelectorAll(".resultParas p");
+    var resetParas = document.querySelector('.resultParas');
+
+    for(var i = 0; i < resultParas.length; i++){
+        resultParas[i].textContent = '';
+    }
+
     guessCount = 1;
 
-    var resetParas = document.querySelector('.resultParas');
     for (var i = 0; i < resetParas.length; i++){
         resetParas[i].textContent = '';
     }
@@ -92,7 +86,5 @@ function resetGame(){
     lastResult.style.backgroundColor = "white";
 
     randomNumber = Math.floor(Math.random() * 100) + 1;
-    
+    guessField.focus();
 };
-
-guessField.value = randomNumber;
